@@ -203,13 +203,15 @@ def get_depth_vertices(img_shape, lat_offset=0.08, horizon=(0.55, 0.5), vert_ran
     return vertices
 
 
-def _process_image(img, colorspace='hsv', thickness=3):
-    """Compute the lane mask of an input image
+def _process_image(img, colorspace='hsv', thickness=3, canny_low=50, canny_high=150):
+    """Compute the lane mask of an input image and overlay it on input image
 
     Args:
         img (numpy.ndarray[H, W, C]): input image
         colorspace (str, optional): colorspace to use for canny edge detection
         thickness (int, optional): thickness of lines on result image
+        canny_low (int, optional): lower threshold for canny edge detection
+        canny_high (int, optional): upper threshold for canny edge detection
 
     Returns:
         numpy.ndarray[H, W, 3]: lane mask
@@ -222,19 +224,19 @@ def _process_image(img, colorspace='hsv', thickness=3):
 
     # Colorspace masking
     if colorspace == 'hsv':
-        yellow_hsv_low = np.array([0, 100, 100])
-        yellow_hsv_high = np.array([50, 255, 255])
+        yellow_low = np.array([0, 100, 100])
+        yellow_high = np.array([50, 255, 255])
 
-        white_hsv_low = np.array([20, 0, 180])
-        white_hsv_high = np.array([255, 80, 255])
+        white_low = np.array([20, 0, 180])
+        white_high = np.array([255, 80, 255])
 
-        yellow_mask = cv2.inRange(smooth_img, yellow_hsv_low, yellow_hsv_high)
-        white_mask = cv2.inRange(smooth_img, white_hsv_low, white_hsv_high)
+        yellow_mask = cv2.inRange(smooth_img, yellow_low, yellow_high)
+        white_mask = cv2.inRange(smooth_img, white_low, white_high)
 
         smooth_img = cv2.bitwise_or(yellow_mask, white_mask)
 
     # Canny edge detection
-    canny_img = cv2.Canny(smooth_img, 50, 150)
+    canny_img = cv2.Canny(smooth_img, canny_low, canny_high)
 
     # Apply depth view masking
     vertices = get_depth_vertices(img.shape)
@@ -242,14 +244,17 @@ def _process_image(img, colorspace='hsv', thickness=3):
 
     # Run Hough on edge detected image
     # Output "lines" is an array containing endpoints of detected line segments
-    return hough_lines(masked_edges, thickness=thickness)
+    lane_img = hough_lines(masked_edges, thickness=thickness)
+
+    # Overlay result on input image
+    return weighted_img(img, lane_img)
 
 
 def process_image(img_path, thickness=3):
-    """Display lane detection results on input image
+    """Read image and detect lanes on it
 
     Args:
-        img (str): input image path
+        img_path (str): input image path
         thickness (int, optional): thickness of lines on result image
 
     Returns:
@@ -258,7 +263,7 @@ def process_image(img_path, thickness=3):
 
     img = mpimg.imread(img_path)
 
-    return weighted_img(img, _process_image(img, thickness=thickness))
+    return _process_image(img, thickness=thickness)
 
 
 def process_video(video_path, output_file, thickness=3):
@@ -271,5 +276,5 @@ def process_video(video_path, output_file, thickness=3):
     """
 
     video = VideoFileClip(video_path)
-    clip = video.fl_image(partial(process_image, thickness=thickness))
+    clip = video.fl_image(partial(_process_image, thickness=thickness))
     clip.write_videofile(output_file, audio=False)
