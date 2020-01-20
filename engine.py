@@ -266,15 +266,22 @@ def process_image(img_path, thickness=3):
     return _process_image(img, thickness=thickness)
 
 
-def process_video(video_path, output_file, thickness=3):
+def process_video(video_path, output_file, thickness=3, write_gif=False):
     """Display lane detection results on input image
 
     Args:
         video_path (str): input video path
         output_file (str): output video path
         thickness (int, optional): thickness of lines on result image
+        write_gif (bool, optional): should the output be a GIF rather than a video
     """
 
     video = VideoFileClip(video_path)
     clip = video.fl_image(partial(_process_image, thickness=thickness))
-    clip.write_videofile(output_file, audio=False)
+    if write_gif:
+        file_split = output_file.split('.')
+        if file_split[-1] != 'gif':
+            output_file = '.'.join(file_split[:-1] + ['gif'])
+        clip.write_gif(output_file, fps=5, program='ImageMagick')
+    else:
+        clip.write_videofile(output_file, audio=False)
