@@ -2,7 +2,9 @@
 
 [![License](https://img.shields.io/badge/License-MIT-brightgreen.svg)](LICENSE) [![Codacy Badge](https://api.codacy.com/project/badge/Grade/f08673c9b1334e1cbcc4e81954a659dc)](https://www.codacy.com/manual/frgfm/sdcnd-p1-lane-detection?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=frgfm/sdcnd-p1-lane-detection&amp;utm_campaign=Badge_Grade) [![CircleCI](https://circleci.com/gh/frgfm/sdcnd-p1-lane-detection.svg?style=shield)](https://circleci.com/gh/frgfm/sdcnd-p1-lane-detection)
 
-This repository is an implementation of non-learning pipeline for lane detection on highway. 
+This repository is an implementation of non-learning pipeline for the lane detection project of Udacity Self-Driving Car Nanodegree.
+
+![video-detection](static/images/video-example.gif)
 
 
 
