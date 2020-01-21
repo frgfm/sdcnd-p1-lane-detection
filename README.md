@@ -101,7 +101,7 @@ In both those colorspaces, we can easily notice that the Hue channel can help is
 
 Now, using the grayscale at high values (above 200) to isolate the white lanes and the hue channel from HSV or HLS at low values (under 20) to isolate the yellow lanes, we can produce the following single-channel image:
 
-![huegray](/home/fg/Documents/Udacity/sdcnd-p1-lane-detection/static/images/huegray.png)
+![huegray](static/images/huegray.png)
 
 To avoid computation overhead, we will not use this colorspace projection and stick to HSV filtering for now.
 
